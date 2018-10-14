@@ -42,7 +42,7 @@ services:
   shell:
     image: "mysql/mysql-server:${MYSQL_VERSION}"
     entrypoint: "/bin/shell-entrypoint"
-    environment: &shell-router-environment
+    environment: &other-environment
       - MYSQL_USER
       - MYSQL_PASSWORD
       - MYSQL_HOST
@@ -51,7 +51,7 @@ services:
       - MYSQL_INNODB_NUM_MEMBERS
     volumes:
       - "./shell-entrypoint.sh:/bin/shell-entrypoint"
-    depends_on: &shell-router-depends
+    depends_on: &other-depends
       - server-1
       - server-2
       - server-3
@@ -61,8 +61,17 @@ services:
     ports:
       - "6446:6446"
       - "6447:6447"
-    environment: *shell-router-environment
+    environment: *other-environment
     volumes:
       - "./data/router:/var/lib/mysqlrouter"
-    depends_on: *shell-router-depends
+    depends_on: *other-depends
+    restart: always
+
+  prometheus-exporter:
+    image: "prom/mysqld-exporter"
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME
+    depends_on: *other-depends
     restart: always
