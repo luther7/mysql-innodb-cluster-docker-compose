@@ -9,4 +9,5 @@ docker-compose \
     server-1 \
     mysqlsh \
     --user=${MYSQL_USER} \
-    --password=${MYSQL_PASSWORD}
+    --password=${MYSQL_PASSWORD} \
+    "$@"
