@@ -1,0 +1,68 @@
+
+version: "3.7"
+
+services:
+  server-1: &server
+    image: "mysql/mysql-server:${MYSQL_VERSION}"
+    ports:
+      - "30001:3306"
+      - "40001:33060"
+    command:
+      - "--server_id=1"
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_ROOT_HOST
+    volumes:
+      - "./my.cnf:/etc/my.cnf"
+      - "./data/server-1:/var/lib/mysql"
+    restart: always
+
+  server-2:
+    <<: *server
+    ports:
+      - "30002:3306"
+      - "40002:33060"
+    command:
+      - "--server_id=2"
+    volumes:
+      - "./my.cnf:/etc/my.cnf"
+      - "./data/server-2:/var/lib/mysql"
+  
+  server-3:
+    <<: *server
+    ports:
+      - "30003:3306"
+      - "40003:33060"
+    command:
+      - "--server_id=3"
+    volumes:
+      - "./my.cnf:/etc/my.cnf"
+      - "./data/server-3:/var/lib/mysql"
+  
+  shell:
+    image: "mysql/mysql-server:${MYSQL_VERSION}"
+    entrypoint: "/bin/shell-entrypoint"
+    environment: &shell-router-environment
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_HOST
+      - MYSQL_PORT
+      - MYSQL_CLUSTER_NAME
+      - MYSQL_INNODB_NUM_MEMBERS
+    volumes:
+      - "./shell-entrypoint.sh:/bin/shell-entrypoint"
+    depends_on: &shell-router-depends
+      - server-1
+      - server-2
+      - server-3
+  
+  router:
+    image: "mysql/mysql-router:${MYSQL_VERSION}"
+    ports:
+      - "6446:6446"
+      - "6447:6447"
+    environment: *shell-router-environment
+    volumes:
+      - "./data/router:/var/lib/mysqlrouter"
+    depends_on: *shell-router-depends
+    restart: always
