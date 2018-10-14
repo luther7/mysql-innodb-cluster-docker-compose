@@ -72,6 +72,6 @@ services:
     ports:
       - "9104:9104"
     environment:
-      - DATA_SOURCE_NAME
+      DATA_SOURCE_NAME: "${MYSQL_USER}:${MYSQL_PASSWORD}@(${MYSQL_HOST}:${MYSQL_PORT})/"
     depends_on: *other-depends
     restart: always

@@ -10,7 +10,6 @@ echo "MYSQL_USER: ${MYSQL_USER}"
 echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD}"
 echo "MYSQL_PORT: ${MYSQL_PORT}"
 echo "MYSQL_CLUSTER_NAME: ${MYSQL_CLUSTER_NAME}"
-echo "MYSQL_PROM_USER_PASSWORD: ${MYSQL_PROM_USER_PASSWORD}"
 
 cat > /tmp/create-cluster.js <<EOF
 var mysqlUser = '${MYSQL_USER}';
@@ -20,22 +19,6 @@ var clusterName = '${MYSQL_CLUSTER_NAME}';
 var cluster = dba.createCluster(clusterName);
 cluster.addInstance({user: mysqlUser, password: mysqlPassword, host: 'server-2'});
 cluster.addInstance({user: mysqlUser, password: mysqlPassword, host: 'server-3'});
-EOF
-
-cat > /tmp/create-prometheus-user.sql <<EOF
-CREATE USER
-    'exporter'@'localhost'
-IDENTIFIED BY
-    '${MYSQL_PROM_USER_PASSWORD}'
-WITH
-    MAX_USER_CONNECTIONS 3;
-
-GRANT
-    PROCESS, REPLICATION CLIENT, SELECT
-ON
-    *.*
-TO
-    'exporter'@'localhost';
 EOF
 
 echo "Attempting to create cluster."
@@ -64,17 +47,4 @@ do
 done
 
 echo "Cluster created."
-echo "Attempting to create Prometheus user."
-
-mysqlsh \
-    --user=${MYSQL_USER} \
-    --password=${MYSQL_PASSWORD} \
-    --host=server-1 \
-    --port=${MYSQL_PORT} \
-    --interactive \
-    --sql \
-    --redirect-primary \
-    --file=/tmp/create-prometheus-user.sql
-
-echo "Prometheus user created."
 echo "Exiting."
