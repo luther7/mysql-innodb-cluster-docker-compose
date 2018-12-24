@@ -27,7 +27,7 @@ services:
     volumes:
       - "./my.cnf:/etc/my.cnf"
       - "./data/server-2:/var/lib/mysql"
-  
+
   server-3:
     <<: *server
     ports:
@@ -38,7 +38,7 @@ services:
     volumes:
       - "./my.cnf:/etc/my.cnf"
       - "./data/server-3:/var/lib/mysql"
-  
+
   shell:
     image: "mysql/mysql-server:${MYSQL_VERSION}"
     entrypoint: "/bin/shell-entrypoint"
@@ -48,6 +48,7 @@ services:
       - MYSQL_HOST
       - MYSQL_PORT
       - MYSQL_CLUSTER_NAME
+      - MYSQL_CLUSTER_OPTIONS
       - MYSQL_INNODB_NUM_MEMBERS
     volumes:
       - "./shell-entrypoint.sh:/bin/shell-entrypoint"
@@ -55,7 +56,7 @@ services:
       - server-1
       - server-2
       - server-3
-  
+
   router:
     image: "mysql/mysql-router:${MYSQL_VERSION}"
     ports:
