@@ -10,13 +10,15 @@ echo "MYSQL_USER: ${MYSQL_USER}"
 echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD}"
 echo "MYSQL_PORT: ${MYSQL_PORT}"
 echo "MYSQL_CLUSTER_NAME: ${MYSQL_CLUSTER_NAME}"
+echo "MYSQL_CLUSTER_OPTIONS: ${MYSQL_CLUSTER_OPTIONS}"
 
 cat > /tmp/create-cluster.js <<EOF
-var mysqlUser = '${MYSQL_USER}';
-var mysqlPassword = '${MYSQL_PASSWORD}';
-var mysqlPort = '${MYSQL_PORT}';
-var clusterName = '${MYSQL_CLUSTER_NAME}';
-var cluster = dba.createCluster(clusterName);
+const mysqlUser = '${MYSQL_USER}';
+const mysqlPassword = '${MYSQL_PASSWORD}';
+const mysqlPort = '${MYSQL_PORT}';
+const clusterName = '${MYSQL_CLUSTER_NAME}';
+const clusterOptions = JSON.parse(${MYSQL_CLUSTER_OPTIONS});
+const cluster = dba.createCluster(clusterName, clusterOptions);
 cluster.addInstance({user: mysqlUser, password: mysqlPassword, host: 'server-2'});
 cluster.addInstance({user: mysqlUser, password: mysqlPassword, host: 'server-3'});
 EOF
